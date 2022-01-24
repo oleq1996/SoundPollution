@@ -56,6 +56,7 @@ namespace SoundPollution
                         break;
                 }
 
+
                 double angle = random.NextDouble() * Math.PI * 2;
                 double x = Location.X + radius * Math.Cos(angle);
                 double y = Location.Y + radius * Math.Sin(angle);

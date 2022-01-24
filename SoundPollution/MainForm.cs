@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,6 +94,46 @@ namespace SoundPollution
         {
             pollutionRadars.Clear();
             pictureBox1.Invalidate();
+        }
+
+        private void exportDataButton_Click(object sender, EventArgs e)
+        {
+            //before your loop
+            var csvLocation = new StringBuilder();
+            var firstLineLoc = string.Format("{0},{1},{2},{3},{4},{5}", "Koordynat X", "Koordynat Y",
+                "Radius", "MaxIntensity", "MinIntensity", "NumberOfPoints");
+            csvLocation.AppendLine(firstLineLoc);
+            var csvAverageNoise = new StringBuilder();
+            var firstLineAvgN = string.Format("{0},{1},{2},{3},{4},{5}", "Koordynat X", "Koordynat Y",
+                "Radius", "MaxIntensity", "MinIntensity", "NumberOfPoints");
+            csvAverageNoise.AppendLine(firstLineAvgN);
+
+            //in your loop
+
+            foreach (PollutionRadar pr in pollutionRadars)
+            {
+                //Suggestion made by KyleMit
+                var basicLineLoc = string.Format("{0},{1},{2},{3},{4},{5}", pr.Location.X, pr.Location.Y,
+                    pr.Radius, pr.MaxIntensity, pr.MinIntensity, pr.NumberOfPoints); // Pollution Radar new line 
+                var basicLineAvgN = string.Format("{0},{1},{2},{3},{4},{5}", pr.Location.X, pr.Location.Y,
+                    pr.Radius, pr.MaxIntensity, pr.MinIntensity, pr.NumberOfPoints); // Pollution Radar new line 
+                csvLocation.AppendLine(basicLineLoc);
+                csvAverageNoise.AppendLine(basicLineLoc);
+                int noiseSum = 0;
+                foreach (PollutionPoint pp in pr.PollutionPoints)
+                {
+                    var ppLineLoc = string.Format("{0},{1},{2},{3}", ":", pp.Location.X, pp.Location.Y, pp.Intensity); // Pollution Point new line
+                    csvLocation.AppendLine(ppLineLoc);
+                    noiseSum += pp.Intensity;
+                }
+                var avgNoise = noiseSum / pr.NumberOfPoints;
+                var avgNoiseLine = string.Format("{0},{1},{2}", ":", "Average Noise",avgNoise); // Line that contains average noise around Radar
+                csvAverageNoise.AppendLine(avgNoiseLine);
+            }
+
+            //after your loop
+            File.WriteAllText(@"C:\csv_gen\Loc.csv", csvLocation.ToString());
+            File.WriteAllText(@"C:\csv_gen\AverageNoise.csv", csvAverageNoise.ToString());
         }
     }
 }
